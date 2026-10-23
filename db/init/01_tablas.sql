@@ -160,7 +160,9 @@ CREATE TABLE publicacion (
     FOREIGN KEY (id_tipo_alojamiento)     REFERENCES tipo_alojamiento (id_tipo_alojamiento),
     FOREIGN KEY (id_politica_cancelacion) REFERENCES politica_cancelacion (id_politica_cancelacion),
     FOREIGN KEY (id_ciudad)               REFERENCES ciudad (id_ciudad),
-    FOREIGN KEY (id_estado_publicacion)   REFERENCES estado_publicacion (id_estado_publicacion)
+    FOREIGN KEY (id_estado_publicacion)   REFERENCES estado_publicacion (id_estado_publicacion),
+    -- HU-015 CA1/CA3 (RF-019): la tarifa de limpieza debe ser mayor o igual a 0 COP.
+    CONSTRAINT chk_publicacion_tarifa_limpieza CHECK (tarifa_limpieza >= 0)
 );
 
 
@@ -206,6 +208,9 @@ CREATE TABLE descuento (
     id_publicacion  INTEGER      NOT NULL,
     noches_minimas  INTEGER      NOT NULL,
     porcentaje      NUMERIC(5,2) NOT NULL,
+    -- HU-015 CA2/CA3 (RF-019): descuento por estancia larga entre 0 % y 50 % desde al menos 1 noche.
+    CONSTRAINT chk_descuento_noches_minimas CHECK (noches_minimas >= 1),
+    CONSTRAINT chk_descuento_porcentaje     CHECK (porcentaje BETWEEN 0 AND 50),
     UNIQUE (id_publicacion, noches_minimas),
     FOREIGN KEY (id_publicacion) REFERENCES publicacion (id_publicacion)
 );
